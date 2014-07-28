@@ -1,10 +1,10 @@
-require 'launchy'
-require 'oauth'
 require 'yaml'
-require 'addressable/uri'
+require 'open-uri'
 
 class TwitterSession
   def self.get(path, query_values)
+    response = self.access_token.get(self.path_to_url(path, query_values)).body
+    JSON.parse(response)
   end
 
   def self.post(path, req_params)
@@ -12,11 +12,19 @@ class TwitterSession
 
   def self.path_to_url(path, query_values = nil)
     Addressable::URI.new(
-    :scheme => 'http',
-    :host => 'api.twitter.com/1.1/',
-    :path => path + '.json',
+    :scheme => 'https',
+    :host => 'api.twitter.com',
+    :path => "/1.1/#{path}.json",
     :query_values => query_values
     ).to_s
+  end
+
+  def self.connected?
+    begin
+      true if open("http://www.google.com/")
+    rescue
+      false
+    end
   end
 
   private
